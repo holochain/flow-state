@@ -7,8 +7,8 @@ const delay = ms => new Promise(r => setTimeout(r, ms))
 // Configure a conductor with two identical DNAs,
 // differentiated by UUID, nicknamed "alice" and "bobbo"
 const config = Config.gen({
-  alice: Config.dna("../elemental-chat.dna.gz", null),
-  bobbo: Config.dna("../elemental-chat.dna.gz", null),
+  alice: Config.dna("../flowstate.dna.gz", null),
+  bobbo: Config.dna("../flowstate.dna.gz", null),
 })
 
 module.exports = (orchestrator) => {

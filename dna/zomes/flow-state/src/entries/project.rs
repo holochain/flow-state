@@ -1,10 +1,13 @@
-use hdk3::{hash_path::path::Component, prelude::*};
+use hdk3::prelude::*;
+use crate::{
+    error::FlowStateResult
+};
 pub mod handlers;
 
 /// The actual project data that is saved into the DHT
 /// This is the data that can change.
 #[hdk_entry(id = "project_entry")]
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct ProjectEntry {
     uuid: String,
     name: String,
@@ -42,7 +45,7 @@ pub struct ProjectList {
 }
 
 impl Project {
-    pub fn new(entry_hash: EntryHash, entry: ProjectEntry) -> FlowStateResult<Project> {
+    pub fn new(entry: ProjectEntry, entry_hash: EntryHash) -> FlowStateResult<Project> {
         Ok(Project{
             uuid: entry.uuid,
             name: entry.name,

@@ -3,21 +3,16 @@ use crate::{
     project::{Project, ProjectEntry}
 };
 use hdk3::prelude::*;
-use link::Link;
+// use link::Link;
 
-use super::{ProjectEntry, Project, ProjectListInput, ProjectList};
+use super::{ProjectListInput, ProjectList};
 
 /// Create a new project
 pub(crate) fn create_project(project_entry: ProjectEntry) -> FlowStateResult<Project> {
-    let ProjectEntry { parent, uuid } = project_entry;
-
-    let owned_string: String = "hello ".to_owned();
-    let borrowed_string: &str = "world";
-
-    let together = owned_string.clone() + borrowed_string;
+    let ProjectEntry { parent, uuid, .. } = project_entry.clone();
     
     // Create the path of the project from the Portfolio (parent) uuid
-    let path: Path = let path = Path::from(parent.into());
+    let path: Path = Path::from(format!("{}.{}", parent, uuid));
     path.ensure()?;
 
     // Commit the project entry
@@ -25,49 +20,27 @@ pub(crate) fn create_project(project_entry: ProjectEntry) -> FlowStateResult<Pro
     let entry_hash = hash_entry!(&project_entry)?;
 
     // link the project to the path of the parent Portfolio
-    create_link!(path.hash()?, entry_hash, "".into())?;
+    create_link!(path.hash()?, entry_hash.clone())?;
 
     // Return the project to the UI
-    Ok(Project::new(project_entry, entry_hash))
+    Project::new(project_entry, entry_hash)
 }
 
-pub(crate) fn list_projects(parent: ProjectListInput) -> FlowStateResult<ProjectList> {
+pub(crate) fn list_projects(input: ProjectListInput) -> FlowStateResult<ProjectList> {
     debug!("list_projects")?;
     // Get the portfolio path
-    let path = Path::from(parent);
-    // Get any projects linked to this portfolio path
-    let project = get_links!(path.hash()?, "".into())?.into_inner();
-
-        // Find the latest
-        let latest_info = project_info
-            .into_iter()
-            .fold(None, |latest: Option<Link>, link| match latest {
-                Some(latest) => {
-                    if link.timestamp > latest.timestamp {
-                        Some(link)
-                    } else {
-                        Some(latest)
-                    }
+    let portfolio_path = Path::from(input.parent);
+    let project_path_links = portfolio_path.children()?.into_inner();
+    let mut projects = Vec::with_capacity(project_path_links.len());
+    for project_uuid in project_path_links.into_iter().map(|link| link.target) {
+        if let Some(project_link_last) = get_links!(project_uuid)?.into_inner().last() {
+            if let Some(element) = get!(project_link_last.target.clone())? {
+                if let Some(project) = element.into_inner().1.to_app_option()? {
+                    projects.push(project);
                 }
-                None => Some(link),
-            });
-
-        // If there is none we will skip this project
-        let latest_info = match latest_info {
-            Some(l) => l,
-            None => continue,
-        };
-
-        // Get the actual project info entry
-        if let Some(element) = get!(latest_info.target)? {
-            if let Some(info) = element.into_inner().1.to_app_option()? {
-                // Construct the project data from the project and info
-                projects.push(ProjectData { project, info });
             }
         }
     }
-    debug!("list_projects")?;
-    debug!("{:?}", projects)?;
     // Return all the projects data to the UI
     Ok(projects.into())
 }
