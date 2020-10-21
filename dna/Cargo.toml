@@ -1,6 +1,6 @@
 [workspace]
 members = [
-  "zomes/flow-state",
+  "zomes/flowstate",
 ]
 
 [profile.dev]

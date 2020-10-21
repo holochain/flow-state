@@ -35,8 +35,8 @@ pub(crate) fn list_projects(input: ProjectListInput) -> FlowStateResult<ProjectL
     for project_uuid in project_path_links.into_iter().map(|link| link.target) {
         if let Some(project_link_last) = get_links!(project_uuid)?.into_inner().last() {
             if let Some(element) = get!(project_link_last.target.clone())? {
-                if let Some(project) = element.into_inner().1.to_app_option()? {
-                    projects.push(project);
+                if let Some(project) = element.into_inner().1.to_app_option::<ProjectEntry>()? {
+                    projects.push(Project::new(project.clone(), hash_entry!(&project)?)?);
                 }
             }
         }

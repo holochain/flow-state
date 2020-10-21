@@ -1,5 +1,5 @@
 [package]
-name = "flow-state"
+name = "flowstate"
 version = "0.0.1"
 authors = [ "philip.beadle@holo.host", "lisa.jetton@holo.host" ]
 edition = "2018"
