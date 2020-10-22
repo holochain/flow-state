@@ -33,6 +33,9 @@ export default {
     }
   },
   actions: {
+    // initialiseAgent({ rootState, commit }, payload) {
+
+    // },
     fetchProjects({ rootState, commit }, payload) {
       const portfolio = { ...payload };
       rootState.db.projects

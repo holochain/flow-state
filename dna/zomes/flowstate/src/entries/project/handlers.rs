@@ -3,7 +3,6 @@ use crate::{
     project::{Project, ProjectEntry}
 };
 use hdk3::prelude::*;
-// use link::Link;
 
 use super::{ProjectListInput, ProjectList};
 
@@ -20,10 +19,15 @@ pub(crate) fn create_project(project_entry: ProjectEntry) -> FlowStateResult<Pro
     let entry_hash = hash_entry!(&project_entry)?;
 
     // link the project to the path of the parent Portfolio
-    create_link!(path.hash()?, entry_hash.clone())?;
+    let project_link: HeaderHash = create_link!(path.hash()?, entry_hash.clone())?;
 
     // Return the project to the UI
-    Project::new(project_entry, entry_hash)
+    Project::new(project_entry, entry_hash, project_link)
+}
+
+/// Create a new project
+pub(crate) fn delete_project(project_link: DeleteLinkInput) -> FlowStateResult<HeaderHash> {
+    Ok(delete_link!(project_link.into_inner())?)
 }
 
 pub(crate) fn list_projects(input: ProjectListInput) -> FlowStateResult<ProjectList> {
@@ -36,7 +40,7 @@ pub(crate) fn list_projects(input: ProjectListInput) -> FlowStateResult<ProjectL
         if let Some(project_link_last) = get_links!(project_uuid)?.into_inner().last() {
             if let Some(element) = get!(project_link_last.target.clone())? {
                 if let Some(project) = element.into_inner().1.to_app_option::<ProjectEntry>()? {
-                    projects.push(Project::new(project.clone(), hash_entry!(&project)?)?);
+                    projects.push(Project::new(project.clone(), hash_entry!(&project)?, project_link_last)?);
                 }
             }
         }

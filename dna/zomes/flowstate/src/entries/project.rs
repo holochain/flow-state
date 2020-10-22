@@ -30,6 +30,7 @@ pub struct Project {
     people: Vec<String>,
     parent: String,
     entry_hash: EntryHash,
+    project_link: HeaderHash,
 }
 
 /// Input to the list projects call
@@ -45,7 +46,7 @@ pub struct ProjectList {
 }
 
 impl Project {
-    pub fn new(entry: ProjectEntry, entry_hash: EntryHash) -> FlowStateResult<Project> {
+    pub fn new(entry: ProjectEntry, entry_hash: EntryHash, project_link: HeaderHash) -> FlowStateResult<Project> {
         Ok(Project{
             uuid: entry.uuid,
             name: entry.name,
@@ -55,6 +56,7 @@ impl Project {
             people: entry.people,
             parent: entry.parent,
             entry_hash: entry_hash,
+            project_link: project_link,
         })
     }
 } 

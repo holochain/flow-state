@@ -87,7 +87,10 @@
           </v-icon>
           <v-icon
             v-if="showDetails && isEditingCard"
-            @click="reset(); cardDetailsOpen = false"
+            @click="
+              reset();
+              cardDetailsOpen = false;
+            "
           >
             mdi-cancel
           </v-icon>
@@ -270,10 +273,9 @@ export default {
           this.column.kanbanCards = this.column.kanbanCards.map(c =>
             c.uuid !== this.actionCard.uuid ? c : { ...c, ...this.actionCard }
           );
-        };
+        }
         this.reset();
       });
-      
     },
     saveChecklistItem(card) {
       this.saveKanbanCard({

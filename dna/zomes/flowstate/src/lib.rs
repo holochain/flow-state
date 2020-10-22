@@ -15,6 +15,11 @@ fn create_project(project_entry: ProjectEntry) -> FlowStateResult<Project> {
 }
 
 #[hdk_extern]
+fn delete_project(project_link: DeleteLinkInput) -> FlowStateResult<HeaderHash> {
+    project::handlers::delete_project(project_link)
+}
+
+#[hdk_extern]
 fn list_projects(parent: ProjectListInput) -> FlowStateResult<ProjectList> {
     project::handlers::list_projects(parent)
 }
