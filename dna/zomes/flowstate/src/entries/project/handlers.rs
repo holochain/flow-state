@@ -37,7 +37,7 @@ pub(crate) fn list_projects(input: ProjectListInput) -> FlowStateResult<ProjectL
     let project_path_links = portfolio_path.children()?.into_inner();
     let mut projects = Vec::with_capacity(project_path_links.len());
     for project_uuid in project_path_links.into_iter().map(|link| link.target) {
-        if let Some(project_link_last) = get_links!(project_uuid)?.into_inner().last() {
+        if let Some(project_link_last) = get_links_details!(project_uuid)?.into_inner().last() {
             if let Some(element) = get!(project_link_last.target.clone())? {
                 if let Some(project) = element.into_inner().1.to_app_option::<ProjectEntry>()? {
                     projects.push(Project::new(project.clone(), hash_entry!(&project)?, project_link_last)?);
