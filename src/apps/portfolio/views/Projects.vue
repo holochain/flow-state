@@ -124,6 +124,7 @@
               >
               </v-img>
               <v-image-input
+                :key="actionProject.uuid"
                 v-if="isEditing"
                 v-model="actionProject.preview"
                 :image-quality="1"
@@ -133,7 +134,7 @@
                 :image-height="200"
                 dark
                 image-min-scaling="contain"
-                class="ml-15 pl-10"
+                class="ml-15 pl-10 mt-5 mb-n3"
               />
               <v-card-text
                 v-if="!isEditing"
@@ -248,7 +249,7 @@ export default {
     openProjectDetail(project) {
       this.isEditing = false;
       this.action = "update";
-      this.actionProject = { ...project };
+      this.actionProject = JSON.parse(JSON.stringify(project));
       this.projectDetailsOpen = true;
     },
     save() {
@@ -256,15 +257,14 @@ export default {
         action: this.action,
         portfolio: this.portfolio,
         project: this.actionProject
-      }).then(() => {
-        this.reset();
-      });
+      }).then(() => this.reset());
     },
     cancel() {
       this.reset();
     },
     reset() {
       this.actionProject = {
+        uuid: uuidv4(),
         name: "",
         preview: "",
         people: [],
@@ -283,8 +283,7 @@ export default {
       this.deleteDialog = true;
     },
     confirmDelete() {
-      console.log(this.actionProject);
-      this.deleteProject(this.actionProject);
+      this.deleteProject(this.actionProject).then(() => this.reset());
       this.deleteDialog = false;
     },
     cancelDelete() {

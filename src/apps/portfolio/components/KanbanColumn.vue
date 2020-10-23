@@ -87,7 +87,10 @@
           </v-icon>
           <v-icon
             v-if="showDetails && isEditingCard"
-            @click="isEditingCard = false"
+            @click="
+              reset();
+              cardDetailsOpen = false;
+            "
           >
             mdi-cancel
           </v-icon>
@@ -129,6 +132,7 @@
                 v-html="actionCard.description"
               />
               <tiptap-vuetify
+                v-if="isEditingCard"
                 :key="actionCard.uuid"
                 v-model="actionCard.description"
                 :extensions="extensions"
@@ -262,18 +266,18 @@ export default {
         action: this.action,
         card: this.actionCard,
         column: this.column
+      }).then(() => {
+        if (this.action === "create") {
+          this.column.kanbanCards.push(this.actionCard);
+        } else {
+          this.column.kanbanCards = this.column.kanbanCards.map(c =>
+            c.uuid !== this.actionCard.uuid ? c : { ...c, ...this.actionCard }
+          );
+        }
+        this.reset();
       });
-      if (this.action === "create") {
-        this.column.kanbanCards.push(this.actionCard);
-      } else {
-        this.column.kanbanCards = this.column.kanbanCards.map(c =>
-          c.uuid !== this.actionCard.uuid ? c : { ...c, ...this.actionCard }
-        );
-      }
-      this.cardDetailsOpen = false;
     },
     saveChecklistItem(card) {
-      console.log("saveChecklistItem");
       this.saveKanbanCard({
         action: "update",
         card: card,
@@ -285,7 +289,7 @@ export default {
       this.deleteCardDialog = true;
     },
     confirmDeleteCard() {
-      this.deleteKanbanCard(this.actionCard);
+      this.deleteKanbanCard(this.actionCard).then(() => this.reset());
       this.column.kanbanCards = this.column.kanbanCards.filter(
         card => card.uuid !== this.actionCard.uuid
       );
@@ -295,9 +299,24 @@ export default {
       this.deleteCardDialog = false;
     },
     openKanbanCard(card) {
-      this.actionCard = { ...card };
+      this.actionCard = JSON.parse(JSON.stringify(card));
       this.action = "update";
       this.cardDetailsOpen = true;
+    },
+    reset() {
+      this.actionCard = {
+        uuid: uuidv4(),
+        name: "",
+        description: "",
+        order: 0,
+        tags: [],
+        reactions: [],
+        messages: [],
+        checklistItems: [],
+        assignees: []
+      };
+      this.cardDetailsOpen = false;
+      this.isEditingCard = true;
     }
   },
   computed: {
